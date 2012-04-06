@@ -43,10 +43,10 @@ jQuery(document).ready(function ($) {
 	/* PLACEHOLDER FOR FORMS ------------- */
 	/* Remove this and jquery.placeholder.min.js if you don't need :) */
 
-	$('input, textarea').placeholder();
+	//$('input, textarea').placeholder();
 
 	/* TOOLTIPS ------------ */
-	$(this).tooltips();
+	//$(this).tooltips();
 
 
 
@@ -87,9 +87,125 @@ jQuery(document).ready(function ($) {
     })
   }
 
+	/* Kinetic Canvas ------------- */
 
-	/* DISABLED BUTTONS ------------- */
-	/* Gives elements with a class of 'disabled' a return: false; */
-  
+	function writeMessage(messageLayer, message) {
+		var context = messageLayer.getContext();
+		messageLayer.clear();
+		context.font = "18pt Calibri";
+		context.fillStyle = "black";
+		context.fillText(message, 10, 25);
+	}
+	
+	function loadImages(sources, callback) {
+		var images = {};
+		var loadedImages = 0;
+		var numImages = 0;
+		for(var src in sources) {
+			numImages++;
+		}
+		for(var src in sources) {
+			images[src] = new Image();
+			images[src].onload = function() {
+				if(++loadedImages >= numImages) {
+					callback(images);
+				}
+			};
+			images[src].src = sources[src];
+		}
+	}
+	
+	function drawBackground(background, backgroundImg, text) {
+		var canvas = background.getCanvas();
+		var context = background.getContext();
 
+		context.drawImage(backgroundImg, 0, 0);
+//		context.font = "20pt Calibri";
+//		context.textAlign = "center";
+//		context.fillStyle = "white";
+//		context.fillText(text, canvas.width / 2, 40);
+	}
+	
+	function initStage(images) {
+
+		var background = new Kinetic.Layer();
+		var animationLayer = new Kinetic.Layer();
+		
+		// image positions
+		var image_positions = {
+			tanhuar: {
+				x: 10,
+				y: 70
+			},
+		};
+		
+		// create draggable animals
+		for(var key in image_positions) {
+			// anonymous function to induce scope
+			(function() {
+				var privKey = key;
+				var image_position = image_positions[key];
+
+				var image = new Kinetic.Image({
+					image: images[key],
+					x: image_position.x,
+					y: image_position.y,
+					draggable: true,
+				});
+
+				image.on("dragstart", function() {
+					image.moveToTop();
+					animationLayer.draw();
+				});
+
+				// make object glow on mouseover
+				image.on("mouseover", function() {
+					image.setImage(images[privKey + "_glow"]);
+					animationLayer.draw();
+					document.body.style.cursor = "pointer";
+				});
+				// return animal on mouseout
+				image.on("mouseout", function() {
+					image.setImage(images[privKey]);
+					animationLayer.draw();
+					document.body.style.cursor = "default";
+				});
+
+				image.on("dragmove", function() {
+					document.body.style.cursor = "pointer";
+				});
+				
+				image.on("dragend", function() {
+					document.getElementById('coordinates').innerHTML = image.x + '/' + image.y;
+				});
+
+				animationLayer.add(image);
+			})();
+		}		
+
+		stage.add(background);
+		stage.add(animationLayer);
+
+		drawBackground(background, images.background, "");
+	}	
+
+	var sources = {
+		background: "images/background.png",
+		tanhuar: "images/tanhuar.png",
+		tanhuar_glow: "images/tanhuar_glow.png",		
+	};
+	
+	var stage = new Kinetic.Stage({
+		container: "kinetic",
+		width: 600,
+		height: 400
+	});	
+
+	loadImages(sources, initStage);
+	
+	$('#reset-canvas').click(function(event){
+		document.getElementById('coordinates').innerHTML = '';		
+		loadImages(sources, initStage);
+	});
+	
 });

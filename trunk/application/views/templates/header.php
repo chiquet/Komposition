@@ -19,5 +19,13 @@
 	<!--
 	<link rel="stylesheet" href="presentation.css">
 	-->
+	<!--Scripts for Foundation-->
+	<script src="javascripts/jquery.min.js"></script>
+	<script src="javascripts/foundation.js"></script>
+	<script src="javascripts/modernizr.foundation.js"></script>
+	<script src="javascripts/app.js"></script>
+	
+	<!--Canvas library-->
+	<script src="javascripts/kinetic-v3.9.1.min.js"></script>	
 	
 </head>
